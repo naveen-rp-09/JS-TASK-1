@@ -1,6 +1,31 @@
-import frappe
-def daily_maintenance():
-    frappe.log_error(
-        title="Daily Maintenance",
-        message="Daily maintenance job executed successfully."
-    )
+let dialog = new frappe.ui.Dialog({
+    title: "Create New Task",
+    fields: [
+        {
+            label: "Task Subject",
+            fieldname: "task_subject",
+            fieldtype: "Data",
+            reqd: 1
+        }
+    ],
+    primary_action_label: "Create Task",
+    primary_action(values) {
+        frappe.call({
+            method: "inventory_app.api.create_task",
+            args: {
+                task_subject: values.task_subject
+            },
+            callback: function (r) {
+                if (r.message) {
+                    dialog.hide();
+                    frappe.msgprint({
+                        title: "Success",
+                        message: `Task <b>${r.message}</b> was created successfully`,
+                        indicator: "green"
+                    });
+                }
+            }
+        });
+    }
+});
+dialog.show();
